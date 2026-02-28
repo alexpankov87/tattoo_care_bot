@@ -1,0 +1,22 @@
+{
+  "name": "tatto-bot",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "nodemon --ext js,cjs,json src/index.cjs"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "type": "module",
+  "dependencies": {
+    "dotenv": "^17.2.3",
+    "express": "^5.2.1",
+    "mongodb": "^6.10.0",
+    "mongoose": "^7.6.0",
+    "serverless-http": "^4.0.0",
+    "telegraf": "^4.16.3"
+  }
+}
