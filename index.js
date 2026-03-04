@@ -1,11 +1,21 @@
 const { Telegraf, Markup } = require('telegraf');
 const mongoose = require('mongoose');
+const express = require('express');
+const serverless = require('serverless-http');
 require('dotenv').config();
 
 // Инициализация бота
 const bot = new Telegraf(process.env.BOT_TOKEN);
 const PORT = process.env.PORT || 3000;
 const WEBHOOK_URL = process.env.WEBHOOK_URL; // должен быть задан в окружении
+
+// Создаём Express-приложение
+const app = express();
+app.use(express.json());
+
+app.get('/', (req, res) => {
+  res.send('Бот работает');
+});
 
 // Глобальный объект для хранения кэша и логов
 const systemCache = {
@@ -485,13 +495,10 @@ const serverless = require('serverless-http');
     const USE_WEBHOOK = process.env.WEBHOOK_URL || process.env.FUNCTION_NAME;
 
     if (USE_WEBHOOK) {
-      const app = express();
-      app.use(express.json());
       app.use(bot.webhookCallback('/webhook'));
 
       const PORT = process.env.PORT || 3000;
-      // 👇 ВАЖНО: добавляем '0.0.0.0', чтобы Render мог найти порт
-      app.listen(PORT, '0.0.0.0', () => {
+         app.listen(PORT, '0.0.0.0', () => {
         console.log(`✅ Бот запущен в режиме вебхука, слушает порт ${PORT}`);
         console.log(`🌍 URL вебхука: ${process.env.WEBHOOK_URL || `http://localhost:${PORT}/webhook`}`);
       });
@@ -519,6 +526,8 @@ const serverless = require('serverless-http');
   }
 })();
 
+
+app.use(bot.webhookCallback('/webhook'));
 // ========== КОМАНДЫ ==========
 
 // Команда /start
