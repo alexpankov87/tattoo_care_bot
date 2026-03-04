@@ -10,7 +10,6 @@
   "author": "",
   "license": "ISC",
   "description": "",
-  "type": "module",
   "dependencies": {
     "dotenv": "^17.2.3",
     "express": "^5.2.1",
