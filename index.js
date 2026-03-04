@@ -466,10 +466,6 @@ async function loadAdminsFromDB() {
 }
 
 // ========== ЗАПУСК БОТА ==========
-
-const express = require('express');
-const serverless = require('serverless-http');
-
 (async () => {
   try {
     console.log('🚀 Запуск бота...');
