@@ -9733,7 +9733,7 @@ bot.action('appointment_tattoo', async (ctx) => {
 
 bot.action('appointment_back', async (ctx) => {
   await ctx.answerCbQuery();
-  await ctx.editMessageText(
+  await ctx.reply(
     'Выберите действие:',
     Markup.keyboard([
       ['🩹 Уход за тату', '⚠️ Возможные проблемы'],
