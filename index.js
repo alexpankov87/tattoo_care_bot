@@ -890,9 +890,7 @@ bot.command('setdate', async (ctx) => {
 
 // Команда /admin - основная панель администратора
 bot.command('admin', async (ctx) => {
-  const ADMIN_ID = 1427347068;
-  
-  if (ctx.from.id !== ADMIN_ID) {
+   if (!ctx.user || !ctx.user.isAdmin) {
     return ctx.reply('❌ У вас нет прав администратора');
   }
   
