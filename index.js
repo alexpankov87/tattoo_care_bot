@@ -146,7 +146,6 @@ async function connectDB() {
     
     console.log('✅ MongoDB Atlas подключена через Mongoose');
     
-    // Создаем модель пользователя с проверкой на существование
     const userSchema = new mongoose.Schema({
       telegramId: { type: Number, required: true, unique: true },
       username: String,
@@ -160,7 +159,6 @@ async function connectDB() {
       createdAt: Date,
       lastActive: Date,
       activity: Object,
-      // Добавляем поле для вопросов пользователя
       questions: [{
         question: String,
         date: Date,
@@ -176,6 +174,11 @@ async function connectDB() {
         canManageSettings: { type: Boolean, default: false },
         canSendBroadcasts: { type: Boolean, default: false },
         canViewAnalytics: { type: Boolean, default: false }
+      },
+      // Добавленное поле для временных данных записи
+      appointmentTemp: {
+        type: Object,
+        default: null
       }
     });
     
