@@ -90,7 +90,14 @@ function addAdminActionLog(adminId, action) {
   
   addToSystemLog(`Админ ${adminId}: ${action}`, 'ADMIN_ACTION');
 }
-
+function getMainKeyboard() {
+  return Markup.keyboard([
+    ['🩹 Уход за тату', '⚠️ Возможные проблемы'],
+    ['🚫 Что нельзя делать', '⏱ Мои напоминания'],
+    ['📊 Статус заживления', '❓ Задать вопрос'],
+    ['📅 Запись', '🔬 Лазерное удаление']
+  ]).resize();
+}
 // Простая функция для безопасного логирования админ-действий
 function logAdminAction(action, userId) {
   const timestamp = new Date().toLocaleString('ru-RU');
@@ -183,14 +190,18 @@ async function connectDB() {
 
     // Модель для записей
     const appointmentSchema = new mongoose.Schema({
-    userId: { type: Number, required: true },
-    userName: String,
-    userContact: String,
-    type: { type: String, enum: ['consultation', 'tattoo'], required: true },
-    date: Date,
-    comment: String,
-    status: { type: String, default: 'pending', enum: ['pending', 'confirmed', 'cancelled'] },
-    createdAt: { type: Date, default: Date.now }
+        userId: { type: Number, required: true },
+          userName: String,
+          userContact: String,
+          type: { 
+            type: String, 
+            enum: ['consultation', 'tattoo', 'laser'],   // ← добавлено 'laser'
+            required: true 
+          },
+          date: Date,
+          comment: String,
+          status: { type: String, default: 'pending', enum: ['pending', 'confirmed', 'cancelled'] },
+          createdAt: { type: Date, default: Date.now }
     });
     const AppointmentModel = mongoose.models.Appointment || mongoose.model('Appointment', appointmentSchema);
 
@@ -548,12 +559,12 @@ bot.start(async (ctx) => {
     '📅 <b>Когда ты сделал(а) татуировку?</b>\n' +
     '(например: сегодня, вчера, 15.01.2024)',
     Markup.keyboard([
-      ['📅 Сегодня', '📅 Вчера'],['📅 Запись'],
+      ['📅 Сегодня', '📅 Вчера'],
+      ['📅 Запись', '🔬 Лазерное удаление'],
       ['🚫 Пропустить']
     ]).resize()
   );
   
-  // Обновляем стадию пользователя
   if (ctx.db && ctx.user) {
     await ctx.db.User.updateOne(
       { telegramId: ctx.from.id },
@@ -8367,8 +8378,28 @@ bot.hears('📅 Запись', async (ctx) => {
     Markup.inlineKeyboard([
       [Markup.button.callback('💬 Онлайн-консультация', 'appointment_consult')],
       [Markup.button.callback('🎨 Запись на тату', 'appointment_tattoo')],
+      [Markup.button.callback('🔬 Лазерное удаление', 'appointment_laser')],
       [Markup.button.callback('🔙 Назад', 'appointment_back')]
     ])
+  );
+});
+
+// Лазерное удаление
+bot.hears('🔬 Лазерное удаление', async (ctx) => {
+  await ctx.replyWithHTML(
+    '🔬 <b>ЛАЗЕРНОЕ УДАЛЕНИЕ ТАТУИРОВКИ</b>\n\n' +
+    '<b>Как проходит сеанс – от входа в студию до ухода домой:</b>\n\n' +
+    '1️⃣ Мы встречаем вас, уточняем зону удаления, обсуждаем пожелания.\n' +
+    '2️⃣ При необходимости наносим анестезию.\n' +
+    '3️⃣ Настраиваем параметры аппарата под вашу тату.\n' +
+    '4️⃣ Сам процесс занимает от 5 до 20 минут.\n' +
+    '5️⃣ После процедуры – обработка, рекомендации, ответы на все вопросы.\n\n' +
+    '❗️ <b>Важно:</b>\n' +
+    '• Количество сеансов – индивидуально, зависит от глубины и плотности пигмента.\n' +
+    '• Между сеансами нужен перерыв (обычно 1–1,5 месяца).\n' +
+    '• Мы используем современный аппарат, сертифицированный и безопасный ✨️\n\n' +
+    '💬 <i>Если ты долго откладываешь из-за сомнений – просто приходи на консультацию. Она бесплатная и ни к чему не обязывает.</i>\n\n' +
+    'Вы можете записаться на приём через кнопку <b>«📅 Запись»</b> в главном меню.'
   );
 });
 
@@ -9779,6 +9810,26 @@ bot.action('appointment_tattoo', async (ctx) => {
   );
 });
 
+// Лазерное удаление (начало записи)
+bot.action('appointment_laser', async (ctx) => {
+  await ctx.answerCbQuery();
+  await ctx.editMessageText(
+    '🔬 Запись на лазерное удаление\n\n' +
+    'Пожалуйста, введите желаемую дату в формате ДД.ММ.ГГГГ (например, 15.05.2025):\n' +
+    '❌ Напишите "Отмена" для отмены записи.',
+    { parse_mode: 'HTML' }
+  );
+  await ctx.db.User.updateOne(
+    { telegramId: ctx.from.id },
+    { 
+      $set: { 
+        stage: 'awaiting_appointment_date',
+        appointmentTemp: { type: 'laser' }
+      } 
+    }
+  );
+});
+
 bot.action('appointment_back', async (ctx) => {
   await ctx.answerCbQuery();
   await ctx.reply(
@@ -9787,10 +9838,11 @@ bot.action('appointment_back', async (ctx) => {
       ['🩹 Уход за тату', '⚠️ Возможные проблемы'],
       ['🚫 Что нельзя делать', '⏱ Мои напоминания'],
       ['📊 Статус заживления', '❓ Задать вопрос'],
-      ['📅 Запись']
+      ['📅 Запись', '🔬 Лазерное удаление']
     ]).resize()
   );
 });
+
 // ========== ОБРАБОТЧИК ДЛЯ ТЕКСТОВЫХ СООБЩЕНИЙ (ПОСЛЕ КОМАНД) ==========
 bot.on('text', async (ctx) => {
   // Пропускаем команды (они начинаются с /)
@@ -10429,23 +10481,30 @@ bot.on('text', async (ctx) => {
         ]).resize()
       );
 
-      // Уведомление администратору
-      const ADMIN_ID = 1427347068;
-      try {
-        await ctx.telegram.sendMessage(
-          ADMIN_ID,
-          `🔔 <b>Новая запись!</b>\n\n` +
-          `👤 <b>Пользователь:</b> ${ctx.user.firstName} (ID: ${ctx.from.id})\n` +
-          `📞 <b>Контакт:</b> ${contact}\n` +
-          `📋 <b>Тип:</b> ${temp.type === 'consultation' ? 'Онлайн-консультация' : 'Запись на тату'}\n` +
-          `📅 <b>Дата:</b> ${dateTime.toLocaleDateString('ru-RU')}\n` +
-          `⏰ <b>Время:</b> ${dateTime.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })}\n` +
-          `💬 <b>Комментарий:</b> ${temp.comment || '—'}\n` +
-          `🆔 <b>ID записи:</b> ${appointment._id}`,
-          { parse_mode: 'HTML' }
-        );
-      } catch (e) {
-        console.error('Не удалось отправить уведомление админу:', e);
+      // Уведомление всем администраторам
+      if (systemCache.accessSettings && systemCache.accessSettings.admins) {
+        for (const admin of systemCache.accessSettings.admins) {
+          try {
+            await ctx.telegram.sendMessage(
+              admin.id,
+              `🔔 <b>Новая запись!</b>\n\n` +
+              `👤 <b>Пользователь:</b> ${ctx.user.firstName} (ID: ${ctx.from.id})\n` +
+              `📞 <b>Контакт:</b> ${contact}\n` +
+              `📋 <b>Тип:</b> ${
+                temp.type === 'consultation' ? 'Онлайн-консультация' :
+                temp.type === 'tattoo' ? 'Запись на тату' :
+                temp.type === 'laser' ? 'Лазерное удаление' : temp.type
+              }\n` +
+              `📅 <b>Дата:</b> ${dateTime.toLocaleDateString('ru-RU')}\n` +
+              `⏰ <b>Время:</b> ${dateTime.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })}\n` +
+              `💬 <b>Комментарий:</b> ${temp.comment || '—'}\n` +
+              `🆔 <b>ID записи:</b> ${appointment._id}`,
+              { parse_mode: 'HTML' }
+            );
+          } catch (e) {
+            console.error(`Не удалось отправить уведомление админу ${admin.id}:`, e);
+          }
+        }
       }
 
       // Очищаем временные данные
