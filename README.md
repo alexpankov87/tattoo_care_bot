@@ -6,22 +6,22 @@
 
 - **Бот в Telegram:** [@tattoo_care_bot](https://t.me/tattoo_care_bot)
 - **QR-код**:  
-  ![QR-код](screenshots/qr_code.jpeg)
+  ![QR-код](screenshots/qr_code.jpg)
 
 ## 📸 Скриншоты
 
 ### Главное меню
-![Главное меню)](screenshots/start_panel.png)
+![Главное меню)](screenshots/start_panel.jpg)
 
 ##*С командами записи или онлайнконсультации*
 
 ### Админ-панель
-![Админ-панель)](screenshots/admin_panel.png)
+![Админ-панель)](screenshots/admin_panel.jpg)
 
 ##*Командная панель администратора*
 
 ### Список команд
-![Список команд](screenshots/user_panel.png)
+![Список команд](screenshots/user_panel.jpg)
 
 ##*Список команд - Для пользователей*
 
