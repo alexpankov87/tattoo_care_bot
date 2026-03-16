@@ -70,9 +70,13 @@ npm install
 Создайте файл .env в корне проекта:
 env
 ##BOT_TOKEN=токен_вашего_бота_от_BotFather
+
 ##MONGODB_URI=строка_подключения_к_MongoDB
+
 ##ADMIN_ID=ваш_telegram_id (главный администратор)
+
 ##PORT=3000
+
 ##WEBHOOK_URL=https://ваш-домен.com/webhook  # для продакшена на Render
 
 Запустите бота:
