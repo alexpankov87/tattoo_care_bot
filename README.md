@@ -69,6 +69,7 @@ npm install
 
 Создайте файл .env в корне проекта:
 env
+
 ##BOT_TOKEN=токен_вашего_бота_от_BotFather
 
 ##MONGODB_URI=строка_подключения_к_MongoDB
