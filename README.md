@@ -68,8 +68,6 @@ tattoo_care_bot/
 ├── package.json
 └── README.md
 
-text
-
 ## 🔧 Установка и запуск локально
 
 1. **Клонируйте репозиторий:**
