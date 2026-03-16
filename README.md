@@ -59,17 +59,7 @@
 - **cron-job.org** — пробуждение бота
 - **dotenv** — управление переменными окружения
 
-## 📁 Структура проекта
-
-tattoo_care_bot/
-├── index.js # Основной файл бота
-├── .env # Переменные окружения (не в Git)
-├── .gitignore
-├── package.json
-└── README.md
-
 ## 🔧 Установка и запуск локально
-
 1. **Клонируйте репозиторий:**
    ```bash
    git clone https://github.com/alexpankov87/tattoo_care_bot.git
