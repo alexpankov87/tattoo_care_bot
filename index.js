@@ -7,7 +7,11 @@ require('dotenv').config();
 // Инициализация бота
 const bot = new Telegraf(process.env.BOT_TOKEN);
 const PORT = process.env.PORT || 3000;
-const WEBHOOK_URL = process.env.WEBHOOK_URL; // должен быть задан в окружении
+const WEBHOOK_URL = process.env.WEBHOOK_URL; 
+const SUPER_ADMIN_ID = process.env.ADMIN_ID ? parseInt(process.env.ADMIN_ID) : null;
+if (!SUPER_ADMIN_ID) {
+  console.warn('⚠️ SUPER_ADMIN_ID не задан в .env! Некоторые функции могут не работать.');
+}
 
 // Создаём Express-приложение
 const app = express();
@@ -406,8 +410,8 @@ async function loadAdminsFromDB() {
       lastUpdated: new Date()
     };
 
-    // Убедимся, что главный администратор (1427347068) есть в списке
-    const mainAdminId = 1427347068;
+   
+    const mainAdminId = SUPER_ADMIN_ID;
     const mainExists = systemCache.accessSettings.admins.some(a => a.id === mainAdminId);
     
     if (!mainExists) {
@@ -801,9 +805,9 @@ bot.command('debuguser', async (ctx) => {
 bot.command('stats', async (ctx) => {
   console.log(`🔄 Команда stats от ${ctx.from.id}`);
   
-  const ADMIN_ID = 1427347068;
+  const ADMIN_ID = SUPER_ADMIN_ID;
   
-  if (ctx.from.id !== ADMIN_ID) {
+  if (ctx.from.id !== SUPER_ADMIN_ID) {
     console.log(`❌ Пользователь ${ctx.from.id} не является админом`);
     return ctx.reply('❌ У вас нет прав администратора');
   }
@@ -944,9 +948,9 @@ bot.command('admin', async (ctx) => {
 
 // Команда /users - просмотр пользователей
 bot.command('users', async (ctx) => {
-  const ADMIN_ID = 1427347068;
+  const ADMIN_ID = SUPER_ADMIN_ID;
   
-  if (ctx.from.id !== ADMIN_ID) {
+  if (ctx.from.id !== SUPER_ADMIN_ID) {
     return ctx.reply('❌ У вас нет прав администратора');
   }
   
@@ -956,10 +960,10 @@ bot.command('users', async (ctx) => {
 // Функция для отображения списка пользователей (ИСПРАВЛЕННАЯ)
 async function showUsersList(ctx, page = 1, isRefresh = false) {
   try {
-    const ADMIN_ID = 1427347068;
+    const ADMIN_ID = SUPER_ADMIN_ID;
     
     // Проверка прав администратора
-    if (ctx.from.id !== ADMIN_ID) {
+    if (ctx.from.id !== SUPER_ADMIN_ID) {
       const errorMsg = '❌ У вас нет прав администратора';
       if (ctx.updateType === 'callback_query') {
         await ctx.answerCbQuery(errorMsg);
@@ -1151,8 +1155,8 @@ async function createBackup(ctx) {
 // Функция для отображения системных логов
 async function showSystemLogs(ctx, page = 1, logType = 'all', isRefresh = false) {
   try {
-    const ADMIN_ID = 1427347068;
-    if (ctx.from.id !== ADMIN_ID) {
+    const ADMIN_ID = SUPER_ADMIN_ID;
+    if (ctx.from.id !== SUPER_ADMIN_ID) {
       return;
     }
     
@@ -1315,8 +1319,8 @@ async function showSystemLogs(ctx, page = 1, logType = 'all', isRefresh = false)
 // Функция для отображения производительности системы
 async function showPerformance(ctx, isRefresh = false) {
   try {
-    const ADMIN_ID = 1427347068;
-    if (ctx.from.id !== ADMIN_ID) {
+    const ADMIN_ID = SUPER_ADMIN_ID;
+    if (ctx.from.id !== SUPER_ADMIN_ID) {
       return;
     }
     
@@ -1449,8 +1453,8 @@ async function showPerformance(ctx, isRefresh = false) {
 
 async function showChartsMenu(ctx, isRefresh = false) {
   try {
-    const ADMIN_ID = 1427347068;
-    if (ctx.from.id !== ADMIN_ID) return;
+    const ADMIN_ID = SUPER_ADMIN_ID;
+    if (ctx.from.id !== SUPER_ADMIN_ID) return;
 
     // Основная статистика для заголовка
     const totalUsers = await ctx.db.User.countDocuments({});
@@ -1545,8 +1549,8 @@ async function showChartsMenu(ctx, isRefresh = false) {
 // Функция для отображения настроек и статуса базы данных
 async function showDBSettings(ctx, isRefresh = false) {
   try {
-    const ADMIN_ID = 1427347068;
-    if (ctx.from.id !== ADMIN_ID) {
+    const ADMIN_ID = SUPER_ADMIN_ID;
+    if (ctx.from.id !== SUPER_ADMIN_ID) {
       return;
     }
 
@@ -1674,8 +1678,8 @@ async function showDBSettings(ctx, isRefresh = false) {
 
 async function showNotificationSettings(ctx, isRefresh = false) {
   try {
-    const ADMIN_ID = 1427347068;
-    if (ctx.from.id !== ADMIN_ID) return;
+    const ADMIN_ID = SUPER_ADMIN_ID;
+    if (ctx.from.id !== SUPER_ADMIN_ID) return;
 
     console.log(`🔔 Админ ${ctx.from.id} запросил настройки уведомлений`);
     
@@ -1796,8 +1800,8 @@ async function showNotificationSettings(ctx, isRefresh = false) {
 
 async function showLanguageSettings(ctx, isRefresh = false) {
   try {
-    const ADMIN_ID = 1427347068;
-    if (ctx.from.id !== ADMIN_ID) return;
+    const ADMIN_ID = SUPER_ADMIN_ID;
+    if (ctx.from.id !== SUPER_ADMIN_ID) return;
 
     console.log(`🌐 Админ ${ctx.from.id} открыл настройки языка`);
     
@@ -1917,8 +1921,8 @@ async function showLanguageSettings(ctx, isRefresh = false) {
 
 async function showWorktimeSettings(ctx, isRefresh = false) {
   try {
-    const ADMIN_ID = 1427347068;
-    if (ctx.from.id !== ADMIN_ID) return;
+    const ADMIN_ID = SUPER_ADMIN_ID;
+    if (ctx.from.id !== SUPER_ADMIN_ID) return;
 
     console.log(`⏱️ Админ ${ctx.from.id} открыл настройки рабочего времени`);
     
@@ -2119,8 +2123,8 @@ function checkIsWorkTime() {
 
 async function showTemplatesSettings(ctx, page = 1, isRefresh = false) {
   try {
-    const ADMIN_ID = 1427347068;
-    if (ctx.from.id !== ADMIN_ID) return;
+    const ADMIN_ID = SUPER_ADMIN_ID;
+    if (ctx.from.id !== SUPER_ADMIN_ID) return;
 
     console.log(`📝 Админ ${ctx.from.id} открыл настройки шаблонов ответов`);
     
@@ -2299,8 +2303,8 @@ async function showTemplatesSettings(ctx, page = 1, isRefresh = false) {
 // Функция для создания шаблона
 async function showTemplateCreation(ctx) {
   try {
-    const ADMIN_ID = 1427347068;
-    if (ctx.from.id !== ADMIN_ID) return;
+    const ADMIN_ID = SUPER_ADMIN_ID;
+    if (ctx.from.id !== SUPER_ADMIN_ID) return;
 
     await ctx.editMessageText(
       '➕ <b>СОЗДАНИЕ НОВОГО ШАБЛОНА</b>\n\n' +
@@ -2352,8 +2356,8 @@ async function showTemplateCreation(ctx) {
 // Функция для отображения категорий
 async function showTemplateCategories(ctx) {
   try {
-    const ADMIN_ID = 1427347068;
-    if (ctx.from.id !== ADMIN_ID) return;
+    const ADMIN_ID = SUPER_ADMIN_ID;
+    if (ctx.from.id !== SUPER_ADMIN_ID) return;
 
     if (!systemCache.templates) {
       systemCache.templates = { templates: [], categories: [], lastUpdated: new Date() };
@@ -2419,8 +2423,8 @@ async function showTemplateCategories(ctx) {
 
 async function showAccessSettings(ctx, isRefresh = false) {
   try {
-    const ADMIN_ID = 1427347068;
-    if (ctx.from.id !== ADMIN_ID) return;
+    const ADMIN_ID = SUPER_ADMIN_ID;
+    if (ctx.from.id !== SUPER_ADMIN_ID) return;
 
     console.log(`🔐 Админ ${ctx.from.id} открыл управление доступом`);
     
@@ -2608,8 +2612,8 @@ async function showAccessSettings(ctx, isRefresh = false) {
 // Функция для показа диалога добавления администратора
 async function showAddAdminDialog(ctx) {
   try {
-    const ADMIN_ID = 1427347068;
-    if (ctx.from.id !== ADMIN_ID) return;
+    const ADMIN_ID = SUPER_ADMIN_ID;
+    if (ctx.from.id !== SUPER_ADMIN_ID) return;
 
     // Проверяем, может ли текущий администратор добавлять других
     if (!systemCache.accessSettings) {
@@ -2679,8 +2683,8 @@ async function showAddAdminDialog(ctx) {
 
 async function showAccessLog(ctx, page = 1, isRefresh = false) {
   try {
-    const ADMIN_ID = 1427347068;
-    if (ctx.from.id !== ADMIN_ID) return;
+    const ADMIN_ID = SUPER_ADMIN_ID;
+    if (ctx.from.id !== SUPER_ADMIN_ID) return;
 
     console.log(`📝 Админ ${ctx.from.id} открыл лог действий администраторов`);
     
@@ -2821,8 +2825,8 @@ async function showAccessLog(ctx, page = 1, isRefresh = false) {
 // Функция для подтверждения очистки лога
 async function confirmClearAccessLog(ctx) {
   try {
-    const ADMIN_ID = 1427347068;
-    if (ctx.from.id !== ADMIN_ID) return;
+    const ADMIN_ID = SUPER_ADMIN_ID;
+    if (ctx.from.id !== SUPER_ADMIN_ID) return;
 
     await ctx.editMessageText(
       '⚠️ <b>ПОДТВЕРЖДЕНИЕ ОЧИСТКИ ЛОГА</b>\n\n' +
@@ -2854,8 +2858,8 @@ async function confirmClearAccessLog(ctx) {
 // Функция для очистки лога
 async function clearAccessLog(ctx) {
   try {
-    const ADMIN_ID = 1427347068;
-    if (ctx.from.id !== ADMIN_ID) return;
+    const ADMIN_ID = SUPER_ADMIN_ID;
+    if (ctx.from.id !== SUPER_ADMIN_ID) return;
 
     const logCount = systemCache.actionLog.length;
     
@@ -2876,8 +2880,8 @@ async function clearAccessLog(ctx) {
 // Функция для отображения графика роста пользователей
 async function showUsersGrowthChart(ctx, period = '7days', isRefresh = false) {
   try {
-    const ADMIN_ID = 1427347068;
-    if (ctx.from.id !== ADMIN_ID) return;
+    const ADMIN_ID = SUPER_ADMIN_ID;
+    if (ctx.from.id !== SUPER_ADMIN_ID) return;
 
     addToSystemLog(`Админ ${ctx.from.id} запросил график роста пользователей (период: ${period})`, 'ADMIN_ACTION');
 
@@ -3050,8 +3054,8 @@ async function showUsersGrowthChart(ctx, period = '7days', isRefresh = false) {
 // Функция для отображения графика ежедневной активности
 async function showDailyActivityChart(ctx, period = '7days', isRefresh = false) {
   try {
-    const ADMIN_ID = 1427347068;
-    if (ctx.from.id !== ADMIN_ID) return;
+    const ADMIN_ID = SUPER_ADMIN_ID;
+    if (ctx.from.id !== SUPER_ADMIN_ID) return;
 
     addToSystemLog(`Админ ${ctx.from.id} запросил график ежедневной активности (период: ${period})`, 'ADMIN_ACTION');
 
@@ -3318,8 +3322,8 @@ async function clearSystemCache(ctx) {
 // Функция для отображения графика вопросов пользователей
 async function showQuestionsChart(ctx, period = '7days', isRefresh = false) {
   try {
-    const ADMIN_ID = 1427347068;
-    if (ctx.from.id !== ADMIN_ID) return;
+    const ADMIN_ID = SUPER_ADMIN_ID;
+    if (ctx.from.id !== SUPER_ADMIN_ID) return;
 
     addToSystemLog(`Админ ${ctx.from.id} запросил график вопросов (период: ${period})`, 'ADMIN_ACTION');
 
@@ -3605,8 +3609,8 @@ async function showQuestionsChart(ctx, period = '7days', isRefresh = false) {
 // Функция для отображения графика почасовой активности
 async function showHourlyActivityChart(ctx, period = '7days', isRefresh = false) {
   try {
-    const ADMIN_ID = 1427347068;
-    if (ctx.from.id !== ADMIN_ID) return;
+    const ADMIN_ID = SUPER_ADMIN_ID;
+    if (ctx.from.id !== SUPER_ADMIN_ID) return;
 
     addToSystemLog(`Админ ${ctx.from.id} запросил график почасовой активности (период: ${period})`, 'ADMIN_ACTION');
 
@@ -3854,10 +3858,10 @@ async function showHourlyActivityChart(ctx, period = '7days', isRefresh = false)
 // Функция для отображения всех вопросов
 async function showAllQuestionsList(ctx, page = 1, isRefresh = false) {
   try {
-    const ADMIN_ID = 1427347068;
+    const ADMIN_ID = SUPER_ADMIN_ID;
     
     // Проверка прав администратора
-    if (ctx.from.id !== ADMIN_ID) {
+    if (ctx.from.id !== SUPER_ADMIN_ID) {
       const errorMsg = '❌ У вас нет прав администратора';
       if (ctx.updateType === 'callback_query') {
         await ctx.answerCbQuery(errorMsg);
@@ -4066,8 +4070,8 @@ async function showAllQuestionsList(ctx, page = 1, isRefresh = false) {
 // Функция для отображения сводной аналитики (дашборд)
 async function showSummaryChart(ctx, isRefresh = false) {
   try {
-    const ADMIN_ID = 1427347068;
-    if (ctx.from.id !== ADMIN_ID) return;
+    const ADMIN_ID = SUPER_ADMIN_ID;
+    if (ctx.from.id !== SUPER_ADMIN_ID) return;
 
     addToSystemLog(`Админ ${ctx.from.id} запросил сводную аналитику`, 'ADMIN_ACTION');
 
@@ -4375,8 +4379,8 @@ async function showSummaryChart(ctx, isRefresh = false) {
 
 async function startBroadcastToActiveUsers(ctx, messageText) {
   try {
-    const ADMIN_ID = 1427347068;
-    if (ctx.from.id !== ADMIN_ID) {
+    const ADMIN_ID = SUPER_ADMIN_ID;
+    if (ctx.from.id !== SUPER_ADMIN_ID) {
       return false;
     }
 
@@ -4555,8 +4559,8 @@ async function startBroadcastToActiveUsers(ctx, messageText) {
 // Функция для запуска рассылки всем пользователям
 async function startBroadcastToAll(ctx, messageText) {
   try {
-    const ADMIN_ID = 1427347068;
-    if (ctx.from.id !== ADMIN_ID) {
+    const ADMIN_ID = SUPER_ADMIN_ID;
+    if (ctx.from.id !== SUPER_ADMIN_ID) {
       return false;
     }
 
@@ -4717,8 +4721,8 @@ async function startBroadcastToAll(ctx, messageText) {
 // Функция для отображения детального отчета
 async function showDetailedReport(ctx, reportType = 'summary', isRefresh = false) {
   try {
-    const ADMIN_ID = 1427347068;
-    if (ctx.from.id !== ADMIN_ID) return;
+    const ADMIN_ID = SUPER_ADMIN_ID;
+    if (ctx.from.id !== SUPER_ADMIN_ID) return;
 
     addToSystemLog(`Админ ${ctx.from.id} запросил детальный отчет (тип: ${reportType})`, 'ADMIN_ACTION');
 
@@ -5093,8 +5097,8 @@ async function showDetailedReport(ctx, reportType = 'summary', isRefresh = false
 // Функция для отображения графика дат татуировок
 async function showTattooDatesChart(ctx, period = '7days', isRefresh = false) {
   try {
-    const ADMIN_ID = 1427347068;
-    if (ctx.from.id !== ADMIN_ID) return;
+    const ADMIN_ID = SUPER_ADMIN_ID;
+    if (ctx.from.id !== SUPER_ADMIN_ID) return;
 
     addToSystemLog(`Админ ${ctx.from.id} запросил график дат татуировок (период: ${period})`, 'ADMIN_ACTION');
 
@@ -5384,8 +5388,8 @@ async function showTattooDatesChart(ctx, period = '7days', isRefresh = false) {
 // Функция для рассылки пользователям с указанной датой татуировки
 async function startBroadcastToTattooUsers(ctx, messageText) {
   try {
-    const ADMIN_ID = 1427347068;
-    if (ctx.from.id !== ADMIN_ID) {
+    const ADMIN_ID = SUPER_ADMIN_ID;
+    if (ctx.from.id !== SUPER_ADMIN_ID) {
       return false;
     }
 
@@ -5584,8 +5588,8 @@ async function startBroadcastToTattooUsers(ctx, messageText) {
 bot.action('admin_settings_notifications', async (ctx) => {
   await ctx.answerCbQuery();
   
-  const ADMIN_ID = 1427347068;
-  if (ctx.from.id !== ADMIN_ID) {
+  const ADMIN_ID = SUPER_ADMIN_ID;
+  if (ctx.from.id !== SUPER_ADMIN_ID) {
     await ctx.answerCbQuery('❌ У вас нет прав администратора');
     return;
   }
@@ -5599,8 +5603,8 @@ bot.action('admin_settings_notifications', async (ctx) => {
 bot.action('admin_notifications_toggle', async (ctx) => {
   await ctx.answerCbQuery();
   
-  const ADMIN_ID = 1427347068;
-  if (ctx.from.id !== ADMIN_ID) return;
+  const ADMIN_ID = SUPER_ADMIN_ID;
+  if (ctx.from.id !== SUPER_ADMIN_ID) return;
   
   if (!systemCache.adminNotificationSettings) {
     systemCache.adminNotificationSettings = {
@@ -5627,8 +5631,8 @@ bot.action('admin_notifications_toggle', async (ctx) => {
 bot.action(/admin_notif_toggle_(\w+)/, async (ctx) => {
   await ctx.answerCbQuery();
   
-  const ADMIN_ID = 1427347068;
-  if (ctx.from.id !== ADMIN_ID) return;
+  const ADMIN_ID = SUPER_ADMIN_ID;
+  if (ctx.from.id !== SUPER_ADMIN_ID) return;
   
   const notificationType = ctx.match[1];
   
@@ -5676,8 +5680,8 @@ bot.action('admin_notifications_refresh', async (ctx) => {
 bot.action('admin_notifications_export', async (ctx) => {
   await ctx.answerCbQuery('💾 Сохраняю настройки...');
   
-  const ADMIN_ID = 1427347068;
-  if (ctx.from.id !== ADMIN_ID) return;
+  const ADMIN_ID = SUPER_ADMIN_ID;
+  if (ctx.from.id !== SUPER_ADMIN_ID) return;
   
   try {
     const settingsData = JSON.stringify(systemCache.adminNotificationSettings || {}, null, 2);
@@ -5707,8 +5711,8 @@ bot.action('admin_notifications_export', async (ctx) => {
 bot.action('admin_stats', async (ctx) => {
   await ctx.answerCbQuery();
 
-  const ADMIN_ID = 1427347068;
-  if (ctx.from.id !== ADMIN_ID) {
+  const ADMIN_ID = SUPER_ADMIN_ID;
+  if (ctx.from.id !== SUPER_ADMIN_ID) {
     await ctx.answerCbQuery('❌ У вас нет прав администратора');
     return;
   }
@@ -5766,8 +5770,8 @@ bot.action('admin_stats', async (ctx) => {
 bot.action('admin_users', async (ctx) => {
   await ctx.answerCbQuery();
   
-  const ADMIN_ID = 1427347068;
-  if (ctx.from.id !== ADMIN_ID) {
+  const ADMIN_ID = SUPER_ADMIN_ID;
+  if (ctx.from.id !== SUPER_ADMIN_ID) {
     await ctx.answerCbQuery('❌ У вас нет прав администратора');
     return;
   }
@@ -5779,8 +5783,8 @@ bot.action('admin_users', async (ctx) => {
 bot.action(/admin_users_page_(\d+)/, async (ctx) => {
   await ctx.answerCbQuery();
   
-  const ADMIN_ID = 1427347068;
-  if (ctx.from.id !== ADMIN_ID) {
+  const ADMIN_ID = SUPER_ADMIN_ID;
+  if (ctx.from.id !== SUPER_ADMIN_ID) {
     await ctx.answerCbQuery('❌ У вас нет прав администратора');
     return;
   }
@@ -5793,8 +5797,8 @@ bot.action(/admin_users_page_(\d+)/, async (ctx) => {
 bot.action(/admin_users_refresh_(\d+)/, async (ctx) => {
   await ctx.answerCbQuery();
   
-  const ADMIN_ID = 1427347068;
-  if (ctx.from.id !== ADMIN_ID) {
+  const ADMIN_ID = SUPER_ADMIN_ID;
+  if (ctx.from.id !== SUPER_ADMIN_ID) {
     await ctx.answerCbQuery('❌ У вас нет прав администратора');
     return;
   }
@@ -5872,8 +5876,8 @@ bot.action('admin_questions', async (ctx) => {
 bot.action('admin_all_questions', async (ctx) => {
   await ctx.answerCbQuery();
   
-  const ADMIN_ID = 1427347068;
-  if (ctx.from.id !== ADMIN_ID) {
+  const ADMIN_ID = SUPER_ADMIN_ID;
+  if (ctx.from.id !== SUPER_ADMIN_ID) {
     await ctx.answerCbQuery('❌ У вас нет прав администратора');
     return;
   }
@@ -5885,8 +5889,8 @@ bot.action('admin_all_questions', async (ctx) => {
 bot.action(/admin_all_questions_page_(\d+)/, async (ctx) => {
   await ctx.answerCbQuery();
   
-  const ADMIN_ID = 1427347068;
-  if (ctx.from.id !== ADMIN_ID) {
+  const ADMIN_ID = SUPER_ADMIN_ID;
+  if (ctx.from.id !== SUPER_ADMIN_ID) {
     await ctx.answerCbQuery('❌ У вас нет прав администратора');
     return;
   }
@@ -5898,8 +5902,8 @@ bot.action(/admin_all_questions_page_(\d+)/, async (ctx) => {
 bot.action(/admin_all_questions_refresh_(\d+)/, async (ctx) => {
   await ctx.answerCbQuery();
   
-  const ADMIN_ID = 1427347068;
-  if (ctx.from.id !== ADMIN_ID) {
+  const ADMIN_ID = SUPER_ADMIN_ID;
+  if (ctx.from.id !== SUPER_ADMIN_ID) {
     await ctx.answerCbQuery('❌ У вас нет прав администратора');
     return;
   }
@@ -6258,8 +6262,8 @@ bot.action(/report_refresh_(\w+)/, async (ctx) => {
 bot.action('admin_settings_language', async (ctx) => {
   await ctx.answerCbQuery();
   
-  const ADMIN_ID = 1427347068;
-  if (ctx.from.id !== ADMIN_ID) {
+  const ADMIN_ID = SUPER_ADMIN_ID;
+  if (ctx.from.id !== SUPER_ADMIN_ID) {
     await ctx.answerCbQuery('❌ У вас нет прав администратора');
     return;
   }
@@ -6273,8 +6277,8 @@ bot.action('admin_settings_language', async (ctx) => {
 bot.action('admin_language_ru', async (ctx) => {
   await ctx.answerCbQuery();
   
-  const ADMIN_ID = 1427347068;
-  if (ctx.from.id !== ADMIN_ID) return;
+  const ADMIN_ID = SUPER_ADMIN_ID;
+  if (ctx.from.id !== SUPER_ADMIN_ID) return;
   
   if (!systemCache.adminLanguageSettings) {
     systemCache.adminLanguageSettings = {};
@@ -6294,8 +6298,8 @@ bot.action('admin_language_ru', async (ctx) => {
 bot.action('admin_language_kz', async (ctx) => {
   await ctx.answerCbQuery();
   
-  const ADMIN_ID = 1427347068;
-  if (ctx.from.id !== ADMIN_ID) return;
+  const ADMIN_ID = SUPER_ADMIN_ID;
+  if (ctx.from.id !== SUPER_ADMIN_ID) return;
   
   if (!systemCache.adminLanguageSettings) {
     systemCache.adminLanguageSettings = {};
@@ -6315,8 +6319,8 @@ bot.action('admin_language_kz', async (ctx) => {
 bot.action('admin_language_en', async (ctx) => {
   await ctx.answerCbQuery();
   
-  const ADMIN_ID = 1427347068;
-  if (ctx.from.id !== ADMIN_ID) return;
+  const ADMIN_ID = SUPER_ADMIN_ID;
+  if (ctx.from.id !== SUPER_ADMIN_ID) return;
   
   if (!systemCache.adminLanguageSettings) {
     systemCache.adminLanguageSettings = {};
@@ -6342,8 +6346,8 @@ bot.action('admin_language_refresh', async (ctx) => {
 bot.action('admin_language_apply_all', async (ctx) => {
   await ctx.answerCbQuery('📊 Применяю язык ко всем пользователям...');
   
-  const ADMIN_ID = 1427347068;
-  if (ctx.from.id !== ADMIN_ID) return;
+  const ADMIN_ID = SUPER_ADMIN_ID;
+  if (ctx.from.id !== SUPER_ADMIN_ID) return;
   
   try {
     // Получаем текущий язык администратора
@@ -6378,8 +6382,8 @@ bot.action('admin_language_apply_all', async (ctx) => {
 bot.action('admin_settings_worktime', async (ctx) => {
   await ctx.answerCbQuery();
   
-  const ADMIN_ID = 1427347068;
-  if (ctx.from.id !== ADMIN_ID) {
+  const ADMIN_ID = SUPER_ADMIN_ID;
+  if (ctx.from.id !== SUPER_ADMIN_ID) {
     await ctx.answerCbQuery('❌ У вас нет прав администратора');
     return;
   }
@@ -6393,8 +6397,8 @@ bot.action('admin_settings_worktime', async (ctx) => {
 bot.action('admin_worktime_toggle', async (ctx) => {
   await ctx.answerCbQuery();
   
-  const ADMIN_ID = 1427347068;
-  if (ctx.from.id !== ADMIN_ID) return;
+  const ADMIN_ID = SUPER_ADMIN_ID;
+  if (ctx.from.id !== SUPER_ADMIN_ID) return;
   
   if (!systemCache.worktimeSettings) {
     systemCache.worktimeSettings = {
@@ -6577,8 +6581,8 @@ bot.action('admin_worktime_save', async (ctx) => {
 bot.action('admin_restart', async (ctx) => {
   await ctx.answerCbQuery();
   
-  const ADMIN_ID = 1427347068;
-  if (ctx.from.id !== ADMIN_ID) {
+  const ADMIN_ID = SUPER_ADMIN_ID;
+  if (ctx.from.id !== SUPER_ADMIN_ID) {
     await ctx.answerCbQuery('❌ У вас нет прав администратора');
     return;
   }
@@ -6636,8 +6640,8 @@ bot.action('admin_restart', async (ctx) => {
 bot.action('admin_backup', async (ctx) => {
   await ctx.answerCbQuery();
   
-  const ADMIN_ID = 1427347068;
-  if (ctx.from.id !== ADMIN_ID) {
+  const ADMIN_ID = SUPER_ADMIN_ID;
+  if (ctx.from.id !== SUPER_ADMIN_ID) {
     await ctx.answerCbQuery('❌ У вас нет прав администратора');
     return;
   }
@@ -6688,8 +6692,8 @@ bot.action('admin_backup', async (ctx) => {
 bot.action('admin_clear_cache', async (ctx) => {
   await ctx.answerCbQuery();
   
-  const ADMIN_ID = 1427347068;
-  if (ctx.from.id !== ADMIN_ID) {
+  const ADMIN_ID = SUPER_ADMIN_ID;
+  if (ctx.from.id !== SUPER_ADMIN_ID) {
     await ctx.answerCbQuery('❌ У вас нет прав администратора');
     return;
   }
@@ -6734,8 +6738,8 @@ bot.action('admin_clear_cache', async (ctx) => {
 bot.action('admin_clear_cache_confirm', async (ctx) => {
   await ctx.answerCbQuery('🧹 Очищаю кэш...');
   
-  const ADMIN_ID = 1427347068;
-  if (ctx.from.id !== ADMIN_ID) {
+  const ADMIN_ID = SUPER_ADMIN_ID;
+  if (ctx.from.id !== SUPER_ADMIN_ID) {
     await ctx.answerCbQuery('❌ У вас нет прав администратора');
     return;
   }
@@ -6792,8 +6796,8 @@ bot.action('admin_clear_cache_confirm', async (ctx) => {
 bot.action('admin_backup_status', async (ctx) => {
   await ctx.answerCbQuery();
   
-  const ADMIN_ID = 1427347068;
-  if (ctx.from.id !== ADMIN_ID) {
+  const ADMIN_ID = SUPER_ADMIN_ID;
+  if (ctx.from.id !== SUPER_ADMIN_ID) {
     await ctx.answerCbQuery('❌ У вас нет прав администратора');
     return;
   }
@@ -6827,8 +6831,8 @@ bot.action('admin_backup_status', async (ctx) => {
 bot.action('admin_settings_templates', async (ctx) => {
   await ctx.answerCbQuery();
   
-  const ADMIN_ID = 1427347068;
-  if (ctx.from.id !== ADMIN_ID) {
+  const ADMIN_ID = SUPER_ADMIN_ID;
+  if (ctx.from.id !== SUPER_ADMIN_ID) {
     await ctx.answerCbQuery('❌ У вас нет прав администратора');
     return;
   }
@@ -6842,8 +6846,8 @@ bot.action('admin_settings_templates', async (ctx) => {
 bot.action(/admin_templates_page_(\d+)/, async (ctx) => {
   await ctx.answerCbQuery();
   
-  const ADMIN_ID = 1427347068;
-  if (ctx.from.id !== ADMIN_ID) return;
+  const ADMIN_ID = SUPER_ADMIN_ID;
+  if (ctx.from.id !== SUPER_ADMIN_ID) return;
   
   const page = parseInt(ctx.match[1]);
   await showTemplatesSettings(ctx, page);
@@ -6853,8 +6857,8 @@ bot.action(/admin_templates_page_(\d+)/, async (ctx) => {
 bot.action(/admin_templates_refresh_(\d+)/, async (ctx) => {
   await ctx.answerCbQuery('🔄 Обновляю...');
   
-  const ADMIN_ID = 1427347068;
-  if (ctx.from.id !== ADMIN_ID) return;
+  const ADMIN_ID = SUPER_ADMIN_ID;
+  if (ctx.from.id !== SUPER_ADMIN_ID) return;
   
   const page = parseInt(ctx.match[1]);
   await showTemplatesSettings(ctx, page, true);
@@ -6864,8 +6868,8 @@ bot.action(/admin_templates_refresh_(\d+)/, async (ctx) => {
 bot.action('admin_template_create', async (ctx) => {
   await ctx.answerCbQuery();
   
-  const ADMIN_ID = 1427347068;
-  if (ctx.from.id !== ADMIN_ID) return;
+  const ADMIN_ID = SUPER_ADMIN_ID;
+  if (ctx.from.id !== SUPER_ADMIN_ID) return;
   
   addToSystemLog(`Админ ${ctx.from.id} начал создание нового шаблона`, 'ADMIN_ACTION');
   
@@ -6876,8 +6880,8 @@ bot.action('admin_template_create', async (ctx) => {
 bot.action('admin_templates_categories', async (ctx) => {
   await ctx.answerCbQuery();
   
-  const ADMIN_ID = 1427347068;
-  if (ctx.from.id !== ADMIN_ID) return;
+  const ADMIN_ID = SUPER_ADMIN_ID;
+  if (ctx.from.id !== SUPER_ADMIN_ID) return;
   
   addToSystemLog(`Админ ${ctx.from.id} открыл управление категориями шаблонов`, 'ADMIN_ACTION');
   
@@ -6888,8 +6892,8 @@ bot.action('admin_templates_categories', async (ctx) => {
 bot.action('admin_templates_export', async (ctx) => {
   await ctx.answerCbQuery('📤 Экспортирую...');
   
-  const ADMIN_ID = 1427347068;
-  if (ctx.from.id !== ADMIN_ID) return;
+  const ADMIN_ID = SUPER_ADMIN_ID;
+  if (ctx.from.id !== SUPER_ADMIN_ID) return;
   
   try {
     if (!systemCache.templates || systemCache.templates.templates.length === 0) {
@@ -6932,8 +6936,8 @@ bot.action('admin_templates_export', async (ctx) => {
 bot.action('admin_category_add', async (ctx) => {
   await ctx.answerCbQuery('➕ Добавляю категорию...');
   
-  const ADMIN_ID = 1427347068;
-  if (ctx.from.id !== ADMIN_ID) return;
+  const ADMIN_ID = SUPER_ADMIN_ID;
+  if (ctx.from.id !== SUPER_ADMIN_ID) return;
   
   await ctx.reply(
     '📁 <b>ДОБАВЛЕНИЕ НОВОЙ КАТЕГОРИИ</b>\n\n' +
@@ -6958,8 +6962,8 @@ bot.action('admin_category_add', async (ctx) => {
 bot.action('admin_categories_stats', async (ctx) => {
   await ctx.answerCbQuery();
   
-  const ADMIN_ID = 1427347068;
-  if (ctx.from.id !== ADMIN_ID) return;
+  const ADMIN_ID = SUPER_ADMIN_ID;
+  if (ctx.from.id !== SUPER_ADMIN_ID) return;
   
   if (!systemCache.templates) {
     await ctx.answerCbQuery('❌ Нет данных о шаблонах');
@@ -7137,8 +7141,8 @@ bot.action('admin_charts_refresh', async (ctx) => {
 bot.action('admin_charts', async (ctx) => {
   await ctx.answerCbQuery();
   
-  const ADMIN_ID = 1427347068;
-  if (ctx.from.id !== ADMIN_ID) {
+  const ADMIN_ID = SUPER_ADMIN_ID;
+  if (ctx.from.id !== SUPER_ADMIN_ID) {
     await ctx.answerCbQuery('❌ У вас нет прав администратора');
     return;
   }
@@ -7157,8 +7161,8 @@ bot.action(['admin_settings_limits'], async (ctx) => {
 bot.action('admin_logs', async (ctx) => {
   await ctx.answerCbQuery();
   
-  const ADMIN_ID = 1427347068;
-  if (ctx.from.id !== ADMIN_ID) {
+  const ADMIN_ID = SUPER_ADMIN_ID;
+  if (ctx.from.id !== SUPER_ADMIN_ID) {
     await ctx.answerCbQuery('❌ У вас нет прав администратора');
     return;
   }
@@ -7204,8 +7208,8 @@ bot.action(/admin_logs_refresh_(\d+)_(\w+)/, async (ctx) => {
 bot.action('admin_logs_clear_confirm', async (ctx) => {
   await ctx.answerCbQuery();
   
-  const ADMIN_ID = 1427347068;
-  if (ctx.from.id !== ADMIN_ID) {
+  const ADMIN_ID = SUPER_ADMIN_ID;
+  if (ctx.from.id !== SUPER_ADMIN_ID) {
     await ctx.answerCbQuery('❌ У вас нет прав администратора');
     return;
   }
@@ -7239,8 +7243,8 @@ bot.action('admin_logs_clear_confirm', async (ctx) => {
 bot.action('admin_logs_clear', async (ctx) => {
   await ctx.answerCbQuery('🧹 Очищаю логи...');
   
-  const ADMIN_ID = 1427347068;
-  if (ctx.from.id !== ADMIN_ID) {
+  const ADMIN_ID = SUPER_ADMIN_ID;
+  if (ctx.from.id !== SUPER_ADMIN_ID) {
     await ctx.answerCbQuery('❌ У вас нет прав администратора');
     return;
   }
@@ -7280,8 +7284,8 @@ bot.action('admin_logs_clear', async (ctx) => {
 bot.action('admin_performance', async (ctx) => {
   await ctx.answerCbQuery();
   
-  const ADMIN_ID = 1427347068;
-  if (ctx.from.id !== ADMIN_ID) {
+  const ADMIN_ID = SUPER_ADMIN_ID;
+  if (ctx.from.id !== SUPER_ADMIN_ID) {
     await ctx.answerCbQuery('❌ У вас нет прав администратора');
     return;
   }
@@ -7293,8 +7297,8 @@ bot.action('admin_performance', async (ctx) => {
 bot.action('admin_performance_refresh', async (ctx) => {
   await ctx.answerCbQuery('🔄 Обновляю статистику...');
   
-  const ADMIN_ID = 1427347068;
-  if (ctx.from.id !== ADMIN_ID) {
+  const ADMIN_ID = SUPER_ADMIN_ID;
+  if (ctx.from.id !== SUPER_ADMIN_ID) {
     await ctx.answerCbQuery('❌ У вас нет прав администратора');
     return;
   }
@@ -7306,8 +7310,8 @@ bot.action('admin_performance_refresh', async (ctx) => {
 bot.action('admin_db_settings', async (ctx) => {
   await ctx.answerCbQuery();
   
-  const ADMIN_ID = 1427347068;
-  if (ctx.from.id !== ADMIN_ID) {
+  const ADMIN_ID = SUPER_ADMIN_ID;
+  if (ctx.from.id !== SUPER_ADMIN_ID) {
     await ctx.answerCbQuery('❌ У вас нет прав администратора');
     return;
   }
@@ -7319,8 +7323,8 @@ bot.action('admin_db_settings', async (ctx) => {
 bot.action('admin_db_settings_refresh', async (ctx) => {
   await ctx.answerCbQuery('🔄 Обновляю информацию о БД...');
   
-  const ADMIN_ID = 1427347068;
-  if (ctx.from.id !== ADMIN_ID) {
+  const ADMIN_ID = SUPER_ADMIN_ID;
+  if (ctx.from.id !== SUPER_ADMIN_ID) {
     await ctx.answerCbQuery('❌ У вас нет прав администратора');
     return;
   }
@@ -7332,8 +7336,8 @@ bot.action('admin_db_settings_refresh', async (ctx) => {
 bot.action('admin_broadcast', async (ctx) => {
   await ctx.answerCbQuery();
   
-  const ADMIN_ID = 1427347068;
-  if (ctx.from.id !== ADMIN_ID) {
+  const ADMIN_ID = SUPER_ADMIN_ID;
+  if (ctx.from.id !== SUPER_ADMIN_ID) {
     await ctx.answerCbQuery('❌ У вас нет прав администратора');
     return;
   }
@@ -7376,8 +7380,8 @@ bot.action('admin_broadcast', async (ctx) => {
 bot.action('admin_broadcast_all', async (ctx) => {
   await ctx.answerCbQuery();
   
-  const ADMIN_ID = 1427347068;
-  if (ctx.from.id !== ADMIN_ID) {
+  const ADMIN_ID = SUPER_ADMIN_ID;
+  if (ctx.from.id !== SUPER_ADMIN_ID) {
     await ctx.answerCbQuery('❌ У вас нет прав администратора');
     return;
   }
@@ -7447,8 +7451,8 @@ bot.action('admin_broadcast_all', async (ctx) => {
 bot.action('admin_broadcast_tattoo', async (ctx) => {
   await ctx.answerCbQuery();
   
-  const ADMIN_ID = 1427347068;
-  if (ctx.from.id !== ADMIN_ID) {
+  const ADMIN_ID = SUPER_ADMIN_ID;
+  if (ctx.from.id !== SUPER_ADMIN_ID) {
     await ctx.answerCbQuery('❌ У вас нет прав администратора');
     return;
   }
@@ -7534,8 +7538,8 @@ bot.action('admin_broadcast_tattoo', async (ctx) => {
 bot.action('admin_broadcast_questions', async (ctx) => {
   await ctx.answerCbQuery();
   
-  const ADMIN_ID = 1427347068;
-  if (ctx.from.id !== ADMIN_ID) {
+  const ADMIN_ID = SUPER_ADMIN_ID;
+  if (ctx.from.id !== SUPER_ADMIN_ID) {
     await ctx.answerCbQuery('❌ У вас нет прав администратора');
     return;
   }
@@ -7634,8 +7638,8 @@ bot.action('admin_broadcast_questions', async (ctx) => {
 bot.action('admin_broadcast_status', async (ctx) => {
   await ctx.answerCbQuery();
   
-  const ADMIN_ID = 1427347068;
-  if (ctx.from.id !== ADMIN_ID) {
+  const ADMIN_ID = SUPER_ADMIN_ID;
+  if (ctx.from.id !== SUPER_ADMIN_ID) {
     await ctx.answerCbQuery('❌ У вас нет прав администратора');
     return;
   }
@@ -7706,8 +7710,8 @@ bot.action('admin_broadcast_status', async (ctx) => {
 bot.action('admin_broadcast_cancel', async (ctx) => {
   await ctx.answerCbQuery('⏹️ Прерываю рассылку...');
   
-  const ADMIN_ID = 1427347068;
-  if (ctx.from.id !== ADMIN_ID) {
+  const ADMIN_ID = SUPER_ADMIN_ID;
+  if (ctx.from.id !== SUPER_ADMIN_ID) {
     await ctx.answerCbQuery('❌ У вас нет прав администратора');
     return;
   }
@@ -7743,8 +7747,8 @@ bot.action('admin_broadcast_cancel', async (ctx) => {
 // Функция для рассылки пользователям, которые задавали вопросы
 async function startBroadcastToUsersWithQuestions(ctx, messageText) {
   try {
-    const ADMIN_ID = 1427347068;
-    if (ctx.from.id !== ADMIN_ID) {
+    const ADMIN_ID = SUPER_ADMIN_ID;
+    if (ctx.from.id !== SUPER_ADMIN_ID) {
       return false;
     }
 
@@ -7955,8 +7959,8 @@ async function startBroadcastToUsersWithQuestions(ctx, messageText) {
 bot.action('admin_broadcast_active', async (ctx) => {
   await ctx.answerCbQuery();
   
-  const ADMIN_ID = 1427347068;
-  if (ctx.from.id !== ADMIN_ID) {
+  const ADMIN_ID = SUPER_ADMIN_ID;
+  if (ctx.from.id !== SUPER_ADMIN_ID) {
     await ctx.answerCbQuery('❌ У вас нет прав администратора');
     return;
   }
@@ -7998,9 +8002,9 @@ bot.action('admin_broadcast_active', async (ctx) => {
 
 // Добавьте команду /broadcast для тестирования рассылки (упрощенная версия)
 bot.command('broadcast', async (ctx) => {
-  const ADMIN_ID = 1427347068;
+  const ADMIN_ID = SUPER_ADMIN_ID;
   
-  if (ctx.from.id !== ADMIN_ID) {
+  if (ctx.from.id !== SUPER_ADMIN_ID) {
     return ctx.reply('❌ У вас нет прав администратора');
   }
   
@@ -8055,8 +8059,8 @@ bot.command('broadcast', async (ctx) => {
 bot.action('admin_settings_access', async (ctx) => {
   await ctx.answerCbQuery();
   
-  const ADMIN_ID = 1427347068;
-  if (ctx.from.id !== ADMIN_ID) {
+  const ADMIN_ID = SUPER_ADMIN_ID;
+  if (ctx.from.id !== SUPER_ADMIN_ID) {
     await ctx.answerCbQuery('❌ У вас нет прав администратора');
     return;
   }
@@ -8070,8 +8074,8 @@ bot.action('admin_settings_access', async (ctx) => {
 bot.action('admin_access_refresh', async (ctx) => {
   await ctx.answerCbQuery();
   
-  const ADMIN_ID = 1427347068;
-  if (ctx.from.id !== ADMIN_ID) {
+  const ADMIN_ID = SUPER_ADMIN_ID;
+  if (ctx.from.id !== SUPER_ADMIN_ID) {
     await ctx.answerCbQuery('❌ У вас нет прав администратора');
     return;
   }
@@ -8089,8 +8093,8 @@ bot.action('admin_access_add', async (ctx) => {
 // 4. Показ списка для удаления администраторов
 bot.action('admin_access_remove_list', async (ctx) => {
   try {
-    const ADMIN_ID = 1427347068;
-    if (ctx.from.id !== ADMIN_ID) return;
+    const ADMIN_ID = SUPER_ADMIN_ID;
+    if (ctx.from.id !== SUPER_ADMIN_ID) return;
 
     // Проверяем, может ли текущий администратор удалять других
     if (!systemCache.accessSettings) {
@@ -8154,8 +8158,8 @@ bot.action('admin_access_remove_list', async (ctx) => {
 // 5. Удаление конкретного администратора (регулярное выражение)
 bot.action(/admin_access_remove_(\d+)/, async (ctx) => {
   try {
-    const ADMIN_ID = 1427347068;
-    if (ctx.from.id !== ADMIN_ID) return;
+    const ADMIN_ID = SUPER_ADMIN_ID;
+    if (ctx.from.id !== SUPER_ADMIN_ID) return;
 
     const adminIdToRemove = parseInt(ctx.match[1]);
     
@@ -8227,8 +8231,8 @@ bot.action(/admin_access_remove_(\d+)/, async (ctx) => {
 // 6. Показ списка прав доступа
 bot.action('admin_access_list_permissions', async (ctx) => {
   try {
-    const ADMIN_ID = 1427347068;
-    if (ctx.from.id !== ADMIN_ID) return;
+    const ADMIN_ID = SUPER_ADMIN_ID;
+    if (ctx.from.id !== SUPER_ADMIN_ID) return;
 
     let message = '📋 <b>СПИСОК ПРАВ ДОСТУПА</b>\n\n';
     
@@ -8268,8 +8272,8 @@ bot.action('admin_access_list_permissions', async (ctx) => {
 // 7. Настройка прав доступа (показать выбор администратора)
 bot.action('admin_access_permissions', async (ctx) => {
   try {
-    const ADMIN_ID = 1427347068;
-    if (ctx.from.id !== ADMIN_ID) return;
+    const ADMIN_ID = SUPER_ADMIN_ID;
+    if (ctx.from.id !== SUPER_ADMIN_ID) return;
 
     // Проверяем, может ли текущий администратор настраивать права
     if (!systemCache.accessSettings) {
@@ -9727,8 +9731,8 @@ bot.action('reminder_list', async (ctx) => {
 bot.action('admin_access_log', async (ctx) => {
   await ctx.answerCbQuery();
   
-  const ADMIN_ID = 1427347068;
-  if (ctx.from.id !== ADMIN_ID) {
+  const ADMIN_ID = SUPER_ADMIN_ID;
+  if (ctx.from.id !== SUPER_ADMIN_ID) {
     await ctx.answerCbQuery('❌ У вас нет прав администратора');
     return;
   }
@@ -9742,8 +9746,8 @@ bot.action('admin_access_log', async (ctx) => {
 bot.action(/admin_access_log_page_(\d+)/, async (ctx) => {
   await ctx.answerCbQuery();
   
-  const ADMIN_ID = 1427347068;
-  if (ctx.from.id !== ADMIN_ID) return;
+  const ADMIN_ID = SUPER_ADMIN_ID;
+  if (ctx.from.id !== SUPER_ADMIN_ID) return;
   
   const page = parseInt(ctx.match[1]);
   await showAccessLog(ctx, page);
@@ -9753,8 +9757,8 @@ bot.action(/admin_access_log_page_(\d+)/, async (ctx) => {
 bot.action(/admin_access_log_refresh_(\d+)/, async (ctx) => {
   await ctx.answerCbQuery();
   
-  const ADMIN_ID = 1427347068;
-  if (ctx.from.id !== ADMIN_ID) return;
+  const ADMIN_ID = SUPER_ADMIN_ID;
+  if (ctx.from.id !== SUPER_ADMIN_ID) return;
   
   const page = parseInt(ctx.match[1]);
   await showAccessLog(ctx, page, true);
@@ -9764,8 +9768,8 @@ bot.action(/admin_access_log_refresh_(\d+)/, async (ctx) => {
 bot.action('admin_access_log_clear_confirm', async (ctx) => {
   await ctx.answerCbQuery();
   
-  const ADMIN_ID = 1427347068;
-  if (ctx.from.id !== ADMIN_ID) return;
+  const ADMIN_ID = SUPER_ADMIN_ID;
+  if (ctx.from.id !== SUPER_ADMIN_ID) return;
   
   await confirmClearAccessLog(ctx);
 });
@@ -10626,8 +10630,8 @@ bot.on('text', async (ctx) => {
 bot.action(/admin_access_edit_permissions_(\d+)/, async (ctx) => {
   await ctx.answerCbQuery();
   
-  const ADMIN_ID = 1427347068;
-  if (ctx.from.id !== ADMIN_ID) {
+  const ADMIN_ID = SUPER_ADMIN_ID;
+  if (ctx.from.id !== SUPER_ADMIN_ID) {
     await ctx.answerCbQuery('❌ У вас нет прав администратора');
     return;
   }
@@ -10753,8 +10757,8 @@ bot.action(/admin_access_toggle_analytics_(\d+)/, async (ctx) => {
 async function togglePermission(ctx, adminIdStr, permissionKey) {
   await ctx.answerCbQuery();
   
-  const ADMIN_ID = 1427347068;
-  if (ctx.from.id !== ADMIN_ID) {
+  const ADMIN_ID = SUPER_ADMIN_ID;
+  if (ctx.from.id !== SUPER_ADMIN_ID) {
     await ctx.answerCbQuery('❌ У вас нет прав администратора');
     return;
   }
@@ -10811,8 +10815,8 @@ bot.action(/admin_access_revoke_all_(\d+)/, async (ctx) => {
 async function setAllPermissions(ctx, adminIdStr, value) {
   await ctx.answerCbQuery();
   
-  const ADMIN_ID = 1427347068;
-  if (ctx.from.id !== ADMIN_ID) {
+  const ADMIN_ID = SUPER_ADMIN_ID;
+  if (ctx.from.id !== SUPER_ADMIN_ID) {
     await ctx.answerCbQuery('❌ У вас нет прав администратора');
     return;
   }
